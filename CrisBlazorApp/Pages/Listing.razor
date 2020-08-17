@@ -1,0 +1,102 @@
+﻿@page "/listing"
+@inject IJSRuntime jsRuntime
+@using Newtonsoft.Json
+
+<h1>Listing for Datasource 1</h1>
+
+<BlazorDataTemplate Items="blazorList">
+    <HeaderTemplate>
+        @if (blazorList.Count > 0)
+        {
+            @foreach (var key in blazorList.FirstOrDefault().Keys)
+            {
+                <th>@key</th>
+            }
+        }
+    </HeaderTemplate>
+    <RowTemplate Context="blaze">
+        @foreach (var val in blaze.Values)
+        {
+            <td>@val</td>
+        }
+        <td><button class="btn btn-danger" @onclick="(async () => await RemoveItem(blaze, Source.PokeApi))">Remove</button></td>
+    </RowTemplate>
+</BlazorDataTemplate>
+
+<h1>Listing for Datasource 2</h1>
+
+<BlazorDataTemplate Items="blazorList2">
+    <HeaderTemplate>
+        @if (blazorList2.Count > 0)
+        {
+            @foreach (var key in blazorList2.FirstOrDefault().Keys)
+            {
+                <th>@key</th>
+            }
+        }
+    </HeaderTemplate>
+    <RowTemplate Context="blaze">
+        @foreach (var val in blaze.Values)
+        {
+            <td>@val</td>
+        }
+        <td><button class="btn btn-danger" @onclick="(async () => await RemoveItem(blaze, Source.Other))">Remove</button></td>
+    </RowTemplate>
+</BlazorDataTemplate>
+
+@code {                                               
+    string storageKey = "poKey";
+    string storageKey2 = "uKey";
+    public List<Dictionary<string, object>> blazorList { get; set; } = new List<Dictionary<string, object>>();
+    public List<Dictionary<string, object>> blazorList2 { get; set; } = new List<Dictionary<string, object>>();
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            StorageHelper.LoadJS(jsRuntime);
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var existingItems = await StorageHelper.ReadStorageAsync(jsRuntime, storageKey);
+        var existingItems2 = await StorageHelper.ReadStorageAsync(jsRuntime, storageKey2);
+
+        List<Dictionary<string, object>> list = new List<Dictionary<string, object>>();
+        List<Dictionary<string, object>> list2 = new List<Dictionary<string, object>>();
+        if (!string.IsNullOrEmpty(existingItems))
+        {
+            blazorList = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(existingItems);
+        }
+
+        if (!string.IsNullOrEmpty(existingItems2))
+        {
+            blazorList2 = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(existingItems2);
+        }
+    }
+
+    private async Task RemoveItem(Dictionary<string, object> dataToRemove, Source source = Source.PokeApi)
+    {
+        List<Dictionary<string, object>> list = new List<Dictionary<string, object>>();
+        switch (source)
+        {
+            case Source.PokeApi:
+                blazorList.Remove(dataToRemove);
+                await UpdateStorage();
+                break;
+            case Source.Other:
+                blazorList2.Remove(dataToRemove); 
+                await UpdateStorage();
+                break;
+        }
+    }
+
+    private async Task UpdateStorage()
+    {
+        await StorageHelper.WriteStorageAsync(jsRuntime, storageKey, JsonConvert.SerializeObject(blazorList)); 
+        await StorageHelper.WriteStorageAsync(jsRuntime, storageKey2, JsonConvert.SerializeObject(blazorList2));
+    }
+
+}

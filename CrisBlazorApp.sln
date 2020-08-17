@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrisBlazorApp", "CrisBlazorApp\CrisBlazorApp.csproj", "{972DB62B-E96B-4A87-BE1E-685A564325C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrisBlazorApp.Business", "CrisBlazorApp.Business\CrisBlazorApp.Business.csproj", "{802FD707-EE15-4B67-B57C-E5B250EC0E31}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{972DB62B-E96B-4A87-BE1E-685A564325C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{972DB62B-E96B-4A87-BE1E-685A564325C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{972DB62B-E96B-4A87-BE1E-685A564325C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{972DB62B-E96B-4A87-BE1E-685A564325C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{802FD707-EE15-4B67-B57C-E5B250EC0E31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{802FD707-EE15-4B67-B57C-E5B250EC0E31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{802FD707-EE15-4B67-B57C-E5B250EC0E31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{802FD707-EE15-4B67-B57C-E5B250EC0E31}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C6D1A6F-4BCD-484D-85F4-63C4D57AF5DA}
+	EndGlobalSection
+EndGlobal

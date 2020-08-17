@@ -1,0 +1,112 @@
+﻿@page "/"
+@inject IBlazorService bService
+@inject IJSRuntime JSRuntime
+@using Newtonsoft.Json
+
+<h1>Hello world of Blazor!</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio"@onchange="(async () => await OptionChanged(true))" name="chkApiOptions" id="chkApiOptions1" checked>
+                <label class="form-check-label" for="chkApiOptions1">https://pokeapi.co/</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" @onchange="(async () => await OptionChanged(false))" name="chkApiOptions" id="chkApiOptions2">
+                <label class="form-check-label" for="chkApiOptions2">Other</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="form-inline">
+                <input class="form-control" type="text" @bind-value="inputVal" placeholder="Search" @bind-value:event="oninput" @onkeyup="Suggest" @onpaste="Suggest"
+                       aria-label="Search">
+                @*<button class="btn btn-primary" aria-hidden="true" @onclick="Suggest">Search</button>*@
+            </div>
+        </div>
+    </div>
+
+    <BlazorDataTemplate Items="blazorList">
+        <HeaderTemplate>
+            @if (blazorList.Count > 0)
+            {
+                @foreach (var key in blazorList.FirstOrDefault().Keys)
+                {
+                    <th>@key</th>
+                }
+            }
+        </HeaderTemplate>
+        <RowTemplate Context="blaze">
+            @foreach (var val in blaze.Values)
+            {
+                <td>@val</td>
+            }
+            <td><button class="btn btn-primary" @onclick="(async () => await StoreToStorageSelected(blaze))">Select</button></td>
+        </RowTemplate>
+    </BlazorDataTemplate>
+</div>
+
+@code {
+    bool IsFirstOptionDataSource = true;
+    string inputVal = string.Empty;
+    public List<Dictionary<string, object>> blazorList { get; set; } = new List<Dictionary<string, object>>();
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            StorageHelper.LoadJS(JSRuntime);
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task OptionChanged(bool flag = true)
+    {
+        IsFirstOptionDataSource = flag;
+        blazorList = new List<Dictionary<string, object>>();
+        bService.ChangeConnection();
+        await Suggest();
+    }
+
+    private async Task Suggest()
+    {
+        // Search and Show suggested item
+        blazorList = await bService.Retrieve(inputVal);
+    }
+
+    private async Task StoreToStorageSelected(Dictionary<string, object> data)
+    {
+        var storageKey = IsFirstOptionDataSource ? "poKey" : "uKey";
+        var comparisonKey = IsFirstOptionDataSource ? "name" : "first_name";
+        var existingItems = await StorageHelper.ReadStorageAsync(JSRuntime, storageKey);
+        bool AlreadyExists = false;
+
+        List<Dictionary<string, object>> list = new List<Dictionary<string, object>>();
+        if(!string.IsNullOrEmpty(existingItems))
+        {
+            list = JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(existingItems);
+        }
+
+        // Check if already exists
+        if (list.Count > 0)
+        {
+            foreach (var d in list)
+            {
+                if (d[comparisonKey].ToString() == data[comparisonKey].ToString())
+                {
+                    AlreadyExists = true;
+                    break;
+                }
+            }
+        }
+
+        if(!AlreadyExists)
+        {
+            list.Add(data);
+            await StorageHelper.WriteStorageAsync(JSRuntime, storageKey, JsonConvert.SerializeObject(list));
+        }
+    }
+}
